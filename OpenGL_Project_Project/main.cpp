@@ -44,22 +44,19 @@ int main(int argc, const char * argv[]) {
     // Set the profile of GLFW to the core profile, which gives us modern functions
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    // Triangle vertices
+    // Triangle vertices in 2D coordinates
     GLfloat vertices[] = {
-        -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower left corner
-        0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f, // Lower right corner
-        0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f, // Upper corner
-        -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner left
-        0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f, // Inner right
-        0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f // Inner down
+        -0.5f, -0.5f, // Lower left corner
+        0.5f, -0.5f, // Lower right corner
+        0.5f, 0.5f, // Upper right corner
+        -0.5f, 0.5f, // Upper left corner
     };
     
     // INDICES of VERTICES to connect triangles
     GLuint indices[] =
     {
-      0, 3, 5,
-      3, 2, 4,
-      5, 4, 1
+      0,1,2,
+      1,2,3
     };
     
     // Creates a window
@@ -111,25 +108,24 @@ int main(int argc, const char * argv[]) {
     glDeleteShader(fragmentShader);
     
     // Reference containers to various array/buffer objects
-    GLuint VAO; // reference to Vertex Array Object -- used to switch between and read VBOs
-    GLuint VBO;
+    GLuint VAO[1]; // reference to Vertex Array Object -- used to switch between and read VBOs
+    GLuint VBO[1];
     GLuint EBO; // reference to index buffer
     
     // Generate buffers/arrays at each object address
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO[0]);
+    glGenBuffers(1, &VBO[0]);
     glGenBuffers(1, &EBO);
     
     // Bind buffers to interal openGL buffers/arrays
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Put vertices into buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
-    // Specifies how to read the vertices (each vertex is made of floats and is read 3 vertices at a time)
-    // 0 is the index of the attribute
-    int vertexSize = 3;
+    // Read the vertices as if they were 2D
+    int vertexSize = 2;
     glVertexAttribPointer(0, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
@@ -141,6 +137,9 @@ int main(int argc, const char * argv[]) {
     // Swap front and back buffer
     glfwSwapBuffers(window);
     
+    // Sets the size that drawn points use
+    glPointSize(20.0f);
+    
     while (!glfwWindowShouldClose(window)) {
         // Specify the color of background
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -149,9 +148,11 @@ int main(int argc, const char * argv[]) {
         // Sets program to the shaderProgram specified
         glUseProgram(shaderProgram);
         // Bind VAO so OpenGL knows how to use program
-        glBindVertexArray(VAO); // we only have one VAO but it's good practice for when dealing w/ multiple VAOs
-        // Draw triangle using primitives
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(VAO[0]); // we only have one VAO but it's good practice for when dealing w/ multiple VAOs
+        
+        glDrawArrays(GL_LINE_LOOP, 0, 4); // Draw outline of a square using LINE_LOOP
+        
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw square using triangles with shared vertices
         glfwSwapBuffers(window);
         
         // Take care of GLFW events
@@ -161,8 +162,8 @@ int main(int argc, const char * argv[]) {
 
     
     // Disassemble
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO[0]);
+    glDeleteBuffers(1, &VBO[0]);
     glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
     
