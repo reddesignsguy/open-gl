@@ -1,6 +1,9 @@
+Learning OpenGL.
+Tutorial Reference: https://www.youtube.com/watch?v=45MIykWJ-C4&t=1949s
+
 1. Phase 1
-- VBO/VAO/Vertex Attributes
-- OpenGL API
+- Getting familiar with OpenGL API
+- Using VBOs, VAOs, and vertices to draw triangles 
 
 <img width="801" alt="image" src="https://github.com/user-attachments/assets/bcaeb556-bc45-4cd1-b86b-944288db9eff">
 
